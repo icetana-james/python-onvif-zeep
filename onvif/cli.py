@@ -14,16 +14,20 @@ import os.path
 
 SUPPORTED_SERVICES = SERVICES.keys()
 
+
 class ThrowingArgumentParser(ArgumentParser):
     def error(self, message):
         usage = self.format_usage()
         raise ValueError("%s\n%s" % (message, usage))
 
+
 def success(message):
     print('True: ' + str(message))
 
+
 def error(message):
     print('False: ' + str(message))
+
 
 class ONVIFCLI(Cmd):
     prompt = 'ONVIF >>> '
@@ -37,14 +41,13 @@ class ONVIFCLI(Cmd):
                                   args.user, args.password,
                                   args.wsdl, encrypt=args.encrypt)
 
-
         # Create cmd argument parser
         self.create_cmd_parser()
 
     def create_cmd_parser(self):
         # Create parser to parse CMD, `params` is optional.
         cmd_parser = ThrowingArgumentParser(prog='ONVIF CMD',
-                            usage='CMD service operation [params]')
+                                            usage='CMD service operation [params]')
         cmd_parser.add_argument('service')
         cmd_parser.add_argument('operation')
         cmd_parser.add_argument('params', default='{}', nargs=REMAINDER)
@@ -100,8 +103,8 @@ class ONVIFCLI(Cmd):
         if not text:
             completions = SUPPORTED_SERVICES[:]
         else:
-            completions = [ key for key in SUPPORTED_SERVICES
-                                if key.startswith(text) ]
+            completions = [key for key in SUPPORTED_SERVICES
+                           if key.startswith(text)]
         return completions
 
     def emptyline(self):
@@ -110,6 +113,7 @@ class ONVIFCLI(Cmd):
     def do_EOF(self, line):
         return True
 
+
 def create_parser():
     parser = ThrowingArgumentParser(description=__doc__)
     # Dealwith dependency for service, operation and params
@@ -117,11 +121,11 @@ def create_parser():
                         help='Service defined by ONVIF WSDL document')
     parser.add_argument('operation', nargs='?', default='',
                         help='Operation to be execute defined'
-                                          ' by ONVIF WSDL document')
+                             ' by ONVIF WSDL document')
     parser.add_argument('params', default='', nargs='?',
                         help='JSON format params passed to the operation.'
                              'E.g., "{"Name": "NewHostName"}"')
-    parser.add_argument('--host',  required=True,
+    parser.add_argument('--host', required=True,
                         help='ONVIF camera host, e.g. 192.168.2.123, '
                              'www.example.com')
     parser.add_argument('--port', default=80, type=int, help='Port number for camera, default: 80')
@@ -129,7 +133,7 @@ def create_parser():
                         help='Username for authentication')
     parser.add_argument('-a', '--password', required=True,
                         help='Password for authentication')
-    parser.add_argument('-w', '--wsdl',  default=os.path.join(os.path.dirname(os.path.dirname(__file__)), "wsdl"),
+    parser.add_argument('-w', '--wsdl', default=os.path.join(os.path.dirname(os.path.dirname(__file__)), "wsdl"),
                         help='directory to store ONVIF WSDL documents')
     parser.add_argument('-e', '--encrypt', default='False',
                         help='Encrypt password or not')
@@ -141,6 +145,7 @@ def create_parser():
                         help='how long will the cache be exist')
 
     return parser
+
 
 def main():
     INTRO = __doc__
@@ -163,6 +168,7 @@ def main():
     # Execute command specified and exit
     else:
         cli.cmdloop()
+
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../ver20/util/onvif-wsdl-viewer.xsl"?>
 <!--
-	Copyright (c) 2008-2012 by ONVIF: Open Network Video Interface Forum. All rights reserved.
+	Copyright (c) 2008-2018 by ONVIF: Open Network Video Interface Forum. All rights reserved.
 	
 	Recipients of this document may copy, distribute, publish, or display this document so long as this copyright notice, license and disclaimer are retained with all copies of the document. No license is granted to modify this document.
 	
@@ -10,8 +10,8 @@
 -->
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tan="http://www.onvif.org/ver20/analytics/wsdl" targetNamespace="http://www.onvif.org/ver20/analytics/wsdl">
 	<wsdl:types>
-		<xs:schema targetNamespace="http://www.onvif.org/ver20/analytics/wsdl" xmlns:tt="http://www.onvif.org/ver10/schema" elementFormDefault="qualified" version="2.2">
-			<xs:import namespace="http://www.onvif.org/ver10/schema" schemaLocation="./onvif.xsd"/>
+		<xs:schema targetNamespace="http://www.onvif.org/ver20/analytics/wsdl" xmlns:tt="http://www.onvif.org/ver10/schema" elementFormDefault="qualified" version="18.06">
+			<xs:import namespace="http://www.onvif.org/ver10/schema" schemaLocation="onvif.xsd"/>
 			<!--  Message Request/Responses elements  -->
 			<!--===============================-->
 			<xs:element name="GetServiceCapabilities">
@@ -33,7 +33,7 @@
 			<!--===============================-->
 			<xs:complexType name="Capabilities">
 				<xs:sequence>
-					<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>		   <!-- first Vendor then ONVIF -->
 				</xs:sequence>
 				<xs:attribute name="RuleSupport" type="xs:boolean">
 					<xs:annotation>
@@ -48,6 +48,16 @@
 				<xs:attribute name="CellBasedSceneDescriptionSupported" type="xs:boolean">
 					<xs:annotation>
 						<xs:documentation>Indication that the device produces the cell based scene description</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="RuleOptionsSupported" type="xs:boolean">
+					<xs:annotation>
+						<xs:documentation>Indication that the device supports the GetRuleOptions operation on the rules interface</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="AnalyticsModuleOptionsSupported" type="xs:boolean">
+					<xs:annotation>
+						<xs:documentation>Indication that the device supports the GetAnalyticsModuleOptions operation on the analytics interface</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:anyAttribute processContents="lax"/>
@@ -147,6 +157,71 @@
 				</xs:complexType>
 			</xs:element>
 			<!--===============================-->
+			<xs:element name="GetRuleOptions">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="RuleType" type="xs:QName" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Reference to an SupportedRule Type returned from GetSupportedRules.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ConfigurationToken" type="tt:ReferenceToken">
+							<xs:annotation>
+								<xs:documentation>Reference to an existing analytics configuration.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GetRuleOptionsResponse">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="RuleOptions" type="tan:ConfigOptions" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>A device shall provide respective ConfigOptions.RuleType for each RuleOption if the request does not specify RuleType.</xs:documentation>
+							</xs:annotation>							
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<!--===============================-->
+			<xs:complexType name="ConfigOptions">
+				<xs:sequence>
+					<xs:any namespace="##any">
+						<xs:annotation>
+							<xs:documentation>
+								XML tree containing the element value as defined in the Type attribute.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:any>
+				</xs:sequence>
+				<xs:attribute name="RuleType" type="xs:QName">
+					<xs:annotation>
+						<xs:documentation>
+							The RuleType the ConfigOptions applies to if the Name attribute is ambiguous.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="Name" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>
+							The Name of the SimpleItemDescription/ElementItemDescription
+							the ConfigOptions applies to.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="Type" type="xs:QName" use="required">
+					<xs:annotation>
+						<xs:documentation>
+							Type of the Rule Options represented by a unique QName. 
+							The Type defines the element contained in this structure.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:anyAttribute processContents="lax"/>
+			</xs:complexType>
+			
+			<!--===============================-->
 			<xs:element name="GetSupportedAnalyticsModules">
 				<xs:complexType>
 					<xs:sequence>
@@ -237,6 +312,59 @@
 				</xs:complexType>
 			</xs:element>
 			<!--===============================-->
+			<xs:element name="GetAnalyticsModuleOptions">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Type" type="xs:QName" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation>Reference to an SupportedAnalyticsModule Type returned from GetSupportedAnalyticsModules.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ConfigurationToken" type="tt:ReferenceToken">
+							<xs:annotation>
+								<xs:documentation>Reference to an existing AnalyticsConfiguration.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GetAnalyticsModuleOptionsResponse">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Options" type="tan:AnalyticsModuleConfigOptions" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="AnalyticsModuleConfigOptions">
+				<xs:sequence>
+					<xs:any namespace="##any">
+						<xs:annotation>
+							<xs:documentation>
+								XML tree containing the element value as defined in the Type attribute.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:any>
+				</xs:sequence>
+				<xs:attribute name="Type" type="xs:QName" use="required">
+					<xs:annotation>
+						<xs:documentation>
+							Type of the Analytics Module Options represented by a unique QName. 
+							The Type defines the element contained in this structure.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="Name" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>
+							The Name of the SimpleItemDescription/ElementItemDescription the AnalyticsModuleConfigOptions applies to.
+							This can be omitted when there is only one parameter the options could apply, including specifically typed elements such as RadiometryParameterOptions to RadiometryParameters.
+							Otherwise, the Name shall be provided.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:anyAttribute processContents="lax"/>
+			</xs:complexType>
+			<!--===============================-->
 		</xs:schema>
 	</wsdl:types>
 	<wsdl:message name="GetServiceCapabilitiesRequest">
@@ -268,6 +396,12 @@
 	</wsdl:message>
 	<wsdl:message name="GetRulesResponse">
 		<wsdl:part name="parameters" element="tan:GetRulesResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetRuleOptionsRequest">
+		<wsdl:part name="parameters" element="tan:GetRuleOptions"/>
+	</wsdl:message>
+	<wsdl:message name="GetRuleOptionsResponse">
+		<wsdl:part name="parameters" element="tan:GetRuleOptionsResponse"/>
 	</wsdl:message>
 	<wsdl:message name="GetSupportedAnalyticsModulesResponse">
 		<wsdl:part name="parameters" element="tan:GetSupportedAnalyticsModulesResponse"/>
@@ -304,6 +438,12 @@
 	</wsdl:message>
 	<wsdl:message name="ModifyAnalyticsModulesResponse">
 		<wsdl:part name="parameters" element="tan:ModifyAnalyticsModulesResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetAnalyticsModuleOptionsRequest">
+		<wsdl:part name="parameters" element="tan:GetAnalyticsModuleOptions"/>
+	</wsdl:message>
+	<wsdl:message name="GetAnalyticsModuleOptionsResponse">
+		<wsdl:part name="parameters" element="tan:GetAnalyticsModuleOptionsResponse"/>
 	</wsdl:message>
 	<wsdl:portType name="RuleEnginePort">
 		<wsdl:operation name="GetSupportedRules">
@@ -344,6 +484,13 @@
 			<wsdl:input message="tan:GetRulesRequest"/>
 			<wsdl:output message="tan:GetRulesResponse"/>
 		</wsdl:operation>
+		<wsdl:operation name="GetRuleOptions">
+			<wsdl:documentation>
+				Return the options for the supported rules that specify an Option attribute.
+			</wsdl:documentation>
+			<wsdl:input message="tan:GetRuleOptionsRequest"/>
+			<wsdl:output message="tan:GetRuleOptionsResponse"/>
+		</wsdl:operation>
 		<wsdl:operation name="ModifyRules">
 			<wsdl:documentation>
 				Modify one or more rules of a VideoAnalyticsConfiguration. The rules are referenced by their names.
@@ -366,6 +513,13 @@
 			</wsdl:documentation>
 			<wsdl:input message="tan:GetSupportedAnalyticsModulesRequest"/>
 			<wsdl:output message="tan:GetSupportedAnalyticsModulesResponse"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetAnalyticsModuleOptions">
+			<wsdl:documentation>
+				Return the options for the supported analytics modules that specify an Option attribute.
+			</wsdl:documentation>
+			<wsdl:input message="tan:GetAnalyticsModuleOptionsRequest"/>
+			<wsdl:output message="tan:GetAnalyticsModuleOptionsResponse"/>
 		</wsdl:operation>
 		<wsdl:operation name="CreateAnalyticsModules">
 			<wsdl:documentation>
@@ -450,6 +604,15 @@
 				<soap:body use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
+		<wsdl:operation name="GetRuleOptions">
+			<soap:operation soapAction="http://www.onvif.org/ver20/analytics/wsdl/GetRuleOptions"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
 		<wsdl:operation name="ModifyRules">
 			<soap:operation soapAction="http://www.onvif.org/ver20/analytics/wsdl/ModifyRules"/>
 			<wsdl:input>
@@ -507,6 +670,15 @@
 				<soap:body use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
+		<wsdl:operation name="GetAnalyticsModuleOptions">
+			<soap:operation soapAction="http://www.onvif.org/ver20/analytics/wsdl/GetAnalyticsModuleOptions"/>
+			<wsdl:input>
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
 		<wsdl:operation name="ModifyAnalyticsModules">
 			<soap:operation soapAction="http://www.onvif.org/ver20/analytics/wsdl/ModifyAnalyticsModules"/>
 			<wsdl:input>
@@ -517,12 +689,4 @@
 			</wsdl:output>
 		</wsdl:operation>
 	</wsdl:binding>
-    <wsdl:service name="AnalyticsService">
-        <wsdl:port name="AnalyticsEnginePort" binding="tan:AnalyticsEngineBinding">
-            <soap:address location="http://192.168.0.51:8888/onvif/Analytics"/>
-        </wsdl:port>
-        <wsdl:port name="RuleEnginePort" binding="tan:RuleEnginePort">
-            <soap:address location="http://192.168.0.51:8888/onvif/Analytics"/>
-        </wsdl:port>
-    </wsdl:service>
 </wsdl:definitions>
