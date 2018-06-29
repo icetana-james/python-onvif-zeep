@@ -5,7 +5,7 @@ import unittest
 
 from onvif import ONVIFCamera, ONVIFError
 
-CAM_HOST = '10.1.3.112'
+CAM_HOST = '10.1.3.10'
 CAM_PORT = 80
 CAM_USER = 'root'
 CAM_PASS = 'password'
